@@ -3,22 +3,17 @@
 
 using namespace std;
 
-typedef struct Buku infotype;
+// Tipe data yang disimpan adalah nama nasabah
+typedef string infotype;
 typedef struct elmlist *address;
 
-// Struktur data buku
-struct Buku {
-    string judul;
-    int tahun;
-};
-
-// Struktur node
+// Struktur untuk setiap node
 struct elmlist {
     infotype info;
     address next;
 };
 
-// Struktur linked list
+// Struktur list
 struct List {
     address first;
 };
@@ -28,7 +23,7 @@ void createList(List &L) {
     L.first = NULL;
 }
 
-// Membuat node buku baru
+// Membuat node baru
 address alokasi(infotype x) {
     address P = new elmlist;
     P->info = x;
@@ -36,102 +31,107 @@ address alokasi(infotype x) {
     return P;
 }
 
-// Menambahkan buku ke akhir list
+// Menghapus node dari memori
+void dealokasi(address &P) {
+    delete P;
+    P = NULL;
+}
+
+// Menambahkan nasabah di akhir antrean
 void insertLast(List &L, address P) {
     if (L.first == NULL) {
         L.first = P;
     } else {
         address Q = L.first;
 
+        // Mencari node terakhir
         while (Q->next != NULL) {
             Q = Q->next;
         }
 
+        // Menghubungkan node baru ke akhir list
         Q->next = P;
     }
 }
 
-// Menghapus buku terakhir
-void deleteLast(List &L, address &P) {
+// Mengambil nasabah paling depan
+void deleteFirst(List &L, address &P) {
     P = NULL;
 
     if (L.first != NULL) {
-        // Jika hanya ada satu buku
-        if (L.first->next == NULL) {
-            P = L.first;
-            L.first = NULL;
-        } else {
-            address Q = L.first;
-
-            // Mencari node sebelum node terakhir
-            while (Q->next->next != NULL) {
-                Q = Q->next;
-            }
-
-            P = Q->next;
-            Q->next = NULL;
-        }
+        P = L.first;
+        L.first = P->next;
+        P->next = NULL;
     }
 }
 
-// Menampilkan daftar buku
+// Menampilkan antrean saat ini
 void printInfo(List L) {
     address P = L.first;
 
-    cout << "Daftar Buku:" << endl;
+    cout << "Antrean: ";
 
     if (P == NULL) {
-        cout << "Tidak ada buku." << endl;
+        cout << "Kosong";
+    } else {
+        while (P != NULL) {
+            cout << P->info;
+
+            if (P->next != NULL) {
+                cout << " -> ";
+            }
+
+            P = P->next;
+        }
     }
 
-    while (P != NULL) {
-        cout << P->info.judul
-             << " (" << P->info.tahun << ")" << endl;
-
-        P = P->next;
-    }
+    cout << endl;
 }
 
 int main() {
     List L;
-    Buku B;
-    address P;
-    int N;
+    int pilihan;
+    string nama;
 
     createList(L);
 
-    // Memasukkan jumlah buku
-    cout << "Jumlah buku: ";
-    cin >> N;
-    cin.ignore();
+    do {
+        cout << "\n=== ANTREAN NASABAH BANK ===" << endl;
+        cout << "1. Tambah nasabah" << endl;
+        cout << "2. Layani nasabah" << endl;
+        cout << "3. Keluar" << endl;
+        cout << "Pilih menu: ";
+        cin >> pilihan;
 
-    // Memasukkan data setiap buku
-    for (int i = 0; i < N; i++) {
-        cout << "Judul buku: ";
-        getline(cin, B.judul);
+        if (pilihan == 1) {
+            cout << "Masukkan nama nasabah: ";
+            getline(cin >> ws, nama);
 
-        cout << "Tahun terbit: ";
-        cin >> B.tahun;
-        cin.ignore();
+            address P = alokasi(nama);
+            insertLast(L, P);
 
-        P = alokasi(B);
-        insertLast(L, P);
-    }
+            printInfo(L);
 
-    // Menghapus buku terakhir
-    deleteLast(L, P);
+        } else if (pilihan == 2) {
+            address P = NULL;
+            deleteFirst(L, P);
 
-    if (P != NULL) {
-        cout << "\nBuku yang dihapus: "
-             << P->info.judul << endl;
+            if (P != NULL) {
+                cout << "Melayani: " << P->info << endl;
+                dealokasi(P);
+                printInfo(L);
+            } else {
+                cout << "Antrean kosong, tidak ada nasabah yang dilayani." << endl;
+            }
 
-        delete P;
-        P = NULL;
-    }
+        } else if (pilihan == 3) {
+            cout << "Program selesai." << endl;
 
-    // Menampilkan buku yang tersisa
-    cout << endl;
-    printInfo(L);
+        } else {
+            cout << "Pilihan tidak valid." << endl;
+        }
+
+    } while (pilihan != 3);
 
     return 0;
 }
